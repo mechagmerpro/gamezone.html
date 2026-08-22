@@ -1,0 +1,159 @@
+<html>
+        <head><title>Downloaded HTML</title></head>
+        <body>
+            <pre style="white-space: pre-wrap; word-wrap: break-word;"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GameZone - My Gaming Website</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#0b1020;color:#fff}
+header{padding:28px 20px;text-align:center;background:linear-gradient(135deg,#6c5ce7,#00cec9)}
+header h1{margin:0;font-size:42px}
+header p{margin:8px 0 0}
+nav{background:#151b31;padding:14px;text-align:center;position:sticky;top:0;z-index:5}
+nav a{color:white;text-decoration:none;margin:0 14px;font-weight:bold}
+.container{max-width:1100px;margin:auto;padding:28px 20px}
+.hero{padding:45px 25px;text-align:center;background:linear-gradient(145deg,#171d36,#20294a);border-radius:20px;margin-bottom:30px}
+.hero h2{font-size:36px;margin:0 0 10px}
+button{border:0;border-radius:10px;padding:12px 18px;font-weight:bold;cursor:pointer}
+.primary{background:#00cec9;color:#071014}
+.search{width:100%;padding:14px;border:0;border-radius:12px;background:#1b233d;color:white;margin:15px 0 25px;font-size:16px}
+#games{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+.card{background:#171d31;padding:20px;border-radius:16px;box-shadow:0 8px 25px #0005}
+.card h3{margin-top:0}
+.play{background:#6c5ce7;color:white;width:100%;margin-top:10px}
+.delete{background:#ff4757;color:white;width:100%;margin-top:8px}
+.modal,.player{display:none;position:fixed;inset:0;background:#000c;z-index:20;padding:20px;align-items:center;justify-content:center}
+.box{background:#171d31;padding:25px;border-radius:16px;width:100%;max-width:650px}
+input,textarea{width:100%;padding:12px;margin:8px 0 15px;border:0;border-radius:8px;background:#27304b;color:white}
+textarea{height:220px;font-family:monospace}
+.close{background:#ff4757;color:white}
+iframe{width:100%;height:calc(100vh - 80px);border:0;border-radius:10px;background:white}
+footer{text-align:center;padding:30px;background:#151b31;margin-top:30px}
+</style>
+</head>
+<body>
+
+<header>
+<h1>🎮 GAMEZONE</h1>
+<p>Your personal gaming website</p>
+</header>
+
+<nav>
+<a href="#home">Home</a>
+<a href="#gamesSection">Games</a>
+<a href="#about">About</a>
+</nav>
+
+<div class="container" id="home">
+<section class="hero">
+<h2>Welcome to GameZone!</h2>
+<p>Play your games and add your own HTML games to your collection.</p>
+<button class="primary" onclick="openModal()">➕ Add Your Game</button>
+</section>
+
+<section id="gamesSection">
+<h2>🕹️ Game Library</h2>
+<input class="search" id="search" placeholder="🔎 Search games..." oninput="showGames()">
+<div id="games"></div>
+</section>
+
+<section id="about" style="margin-top:40px">
+<h2>ℹ️ About</h2>
+<p>This website stores your added games in your browser using local storage.</p>
+</section>
+</div>
+
+<footer>🎮 GameZone • Made with HTML, CSS & JavaScript</footer>
+
+<div class="modal" id="modal">
+<div class="box">
+<h2>➕ Add a Game</h2>
+<label>Game name</label>
+<input id="name" placeholder="My Awesome Game">
+<label>Description</label>
+<input id="description" placeholder="A fun game!">
+<label>HTML game code</label>
+<textarea id="code" placeholder="Paste your complete HTML game code here..."></textarea>
+<button class="primary" onclick="addGame()">Save Game</button>
+<button class="close" onclick="closeModal()">Cancel</button>
+</div>
+</div>
+
+<div class="player" id="player">
+<div style="width:100%;height:100%">
+<button class="close" onclick="closeGame()">✖ Close Game</button>
+<iframe id="frame"></iframe>
+</div>
+</div>
+
+<script>
+let games=JSON.parse(localStorage.getItem("gamezoneGames")||"[]");
+
+function openModal(){document.getElementById("modal").style.display="flex"}
+function closeModal(){document.getElementById("modal").style.display="none"}
+
+function addGame(){
+ const name=document.getElementById("name").value.trim();
+ const description=document.getElementById("description").value.trim();
+ const code=document.getElementById("code").value.trim();
+ if(!name||!code){alert("Please enter a name and HTML game code.");return}
+ games.push({name,description:description||"My game",code});
+ localStorage.setItem("gamezoneGames",JSON.stringify(games));
+ document.getElementById("name").value="";
+ document.getElementById("description").value="";
+ document.getElementById("code").value="";
+ closeModal();
+ showGames();
+}
+
+function showGames(){
+ const q=document.getElementById("search").value.toLowerCase();
+ const box=document.getElementById("games");
+ box.innerHTML="";
+ const filtered=games.filter(g=>(g.name+" "+g.description).toLowerCase().includes(q));
+ if(!filtered.length){
+  box.innerHTML='<div class="card"><h3>🎮 No games found</h3><p>Click "Add Your Game" to add one.</p></div>';
+  return;
+ }
+ filtered.forEach((g)=>{
+  const realIndex=games.indexOf(g);
+  const card=document.createElement("div");
+  card.className="card";
+  card.innerHTML="<h3>🎮 "+escapeHTML(g.name)+"</h3><p>"+escapeHTML(g.description)+"</p>";
+  const play=document.createElement("button");
+  play.className="play";play.textContent="▶ PLAY";play.onclick=()=>playGame(realIndex);
+  const del=document.createElement("button");
+  del.className="delete";del.textContent="🗑 DELETE";del.onclick=()=>deleteGame(realIndex);
+  card.append(play,del);box.appendChild(card);
+ });
+}
+
+function playGame(i){
+ document.getElementById("frame").srcdoc=games[i].code;
+ document.getElementById("player").style.display="flex";
+}
+function closeGame(){
+ document.getElementById("frame").srcdoc="";
+ document.getElementById("player").style.display="none";
+}
+function deleteGame(i){
+ if(confirm("Delete this game?")){
+  games.splice(i,1);
+  localStorage.setItem("gamezoneGames",JSON.stringify(games));
+  showGames();
+ }
+}
+function escapeHTML(s){
+ return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
+showGames();
+</script>
+</body>
+</html></pre>
+        </body>
+    </html>
+  
